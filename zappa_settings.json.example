@@ -1,0 +1,13 @@
+{
+    "dev": {
+        "app_function": "main.app",
+        "aws_region": "eu-west-1",
+        "profile_name": "default",
+        "environment_variables": {
+            "AWS_ACCESS_KEY_ID": "<YOUR AWS_DYNAMODB_KEYID>",
+            "AWS_SECRET_ACCESS_KEY": "<YOUR AWS_DYNAMODB_SECRETKEY>",
+            "AWS_REGION": "eu-west-1"
+        },
+        "s3_bucket": "zappa-ou41qdshu"
+    }
+}
