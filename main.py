@@ -4,7 +4,6 @@
 from boto.dynamodb2.fields import HashKey, RangeKey, GlobalAllIndex
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import NUMBER
-#  from boto.dynamodb.conditions import Key, Attr
 
 from flask import Flask
 from flask.ext.autodoc import Autodoc
@@ -108,6 +107,11 @@ def task_search(owner):
                                         index='secondKeyIndex')
     for r in results:
         data["items"].append(dict(r.items()))
+
+        t = Task("")
+        t.from_dict(dict(r.items()))
+        print t
+
         length += 1
     data["items_length"] = length
 

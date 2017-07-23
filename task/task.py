@@ -69,7 +69,7 @@ class Task(object):
     def from_dict(self, d):
         """Create object from dict."""
         if "id" in d:
-            self.set_id(d["id"])
+            self._set_id(d["id"])
         if "owner" in d:
             self.set_owner(d["owner"])
         if "timestamp" in d:
@@ -81,4 +81,4 @@ class Task(object):
 
     def __str__(self):
         """Return human readable representation of Task."""
-        return "[%s] %s" % (self.id[:4], self.title)
+        return "[%s..%s] %s" % (self.id[:4], self.id[-2:], self.title)
