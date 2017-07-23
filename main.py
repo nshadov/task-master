@@ -83,7 +83,7 @@ def index():
 @auto.doc()
 def task_create():
     """Add new task to a list."""
-    task = Task("sample")
+    task = Task(None)
 
     if request.method == "POST":
         content = request.get_json(silent=True)
