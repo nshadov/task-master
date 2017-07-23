@@ -4,10 +4,11 @@
 from boto.dynamodb2.fields import HashKey, RangeKey, GlobalAllIndex
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import NUMBER
+from botocore.exceptions import ClientError
 
-from flask import Flask
-from flask.ext.autodoc import Autodoc
-from flask.ext.dynamo import Dynamo
+from flask import Flask, abort, request
+from flask_autodoc import Autodoc
+from flask_dynamo import Dynamo
 from task.task import Task
 
 import json
@@ -84,15 +85,34 @@ def task_create():
     """Add new task to a list."""
     task = Task("sample")
 
+    if request.method == "POST":
+        content = request.get_json(silent=True)
+        if not content:
+            abort(400)
+        task.from_dict(content)
+
     dynamo.tasks_master.put_item(data=task.as_dict())
     return "Task ID: %s" % task.get_id()
 
 
-@app.route('/task/destroy/<string:task_id>', methods=["GET"])
+@app.route('/task/destroy/<string:task_id>', methods=["GET", "DELETE"])
 @auto.doc()
 def task_destroy(task_id):
     """Add new task to a list."""
-    pass
+    data = {"deleted_keys": []}
+    results_length = 0
+
+    try:
+        results = dynamo.tasks_master.query(id__eq=task_id)
+        for r in results:
+            data["deleted_keys"].append(dict(r.items()))
+            r.delete()
+            results_length += 1
+        if results_length < 1:
+            abort(404)
+    except ClientError as e:
+        abort(500)
+    return json.dumps(data, indent=4, cls=DecimalEncoder)
 
 
 @app.route('/task/search/<string:owner>', methods=["GET"])
@@ -110,10 +130,11 @@ def task_search(owner):
 
         t = Task("")
         t.from_dict(dict(r.items()))
-        print t
-
         length += 1
     data["items_length"] = length
+
+    if length < 1:
+        abort(404)
 
     return json.dumps(data, indent=4, cls=DecimalEncoder)
 
